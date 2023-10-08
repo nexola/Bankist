@@ -84,6 +84,12 @@ const mostrarTransacoes = function (transacoes) {
 };
 mostrarTransacoes(account1.movements);
 
+const calcMostrarBalanco = function (transacoes) {
+  const balanco = transacoes.reduce((acc, transacao) => acc + transacao, 0);
+  labelBalance.textContent = `${balanco}€`;
+};
+calcMostrarBalanco(account1.movements);
+
 const criarUsername = function (contas) {
   contas.forEach(conta => {
     conta.username = conta.owner
@@ -94,5 +100,3 @@ const criarUsername = function (contas) {
   });
 };
 criarUsername(accounts);
-
-console.log(accounts);
