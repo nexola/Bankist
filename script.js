@@ -65,22 +65,34 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 
 const mostrarTransacoes = function (transacoes) {
-  transacoes.forEach((transacao, i) => {
-    containerMovements.innerHTML = '';
+  containerMovements.innerHTML = '';
 
+  transacoes.forEach((transacao, i) => {
     const tipo = transacao > 0 ? 'deposito' : 'saque';
 
     const html = `
     <div class="movements__row">
-      <div class="movements__type movements__type--${tipo}">${
-      i + 1
-    } ${tipo}</div>
-      <div class="movements__value">${transacao}€</div>
+      <div class="movements__type movements__type--${tipo}">${i + 1} ${tipo}
+      </div>
+      <div class="movements__value">${transacao}€
+      </div>
     </div>
     `;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-
 mostrarTransacoes(account1.movements);
+
+const criarUsername = function (contas) {
+  contas.forEach(conta => {
+    conta.username = conta.owner
+      .split(' ')
+      .map(nome => nome[0])
+      .join('')
+      .toLowerCase();
+  });
+};
+criarUsername(accounts);
+
+console.log(accounts);
