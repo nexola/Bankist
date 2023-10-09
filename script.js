@@ -70,10 +70,12 @@ const atualizarUI = function (currentAccount) {
   calcMostrarSumario(currentAccount);
 };
 
-const mostrarTransacoes = function (transacoes) {
+const mostrarTransacoes = function (transacoes, ordenar = false) {
   containerMovements.innerHTML = '';
 
-  transacoes.forEach((transacao, i) => {
+  const trans = ordenar ? transacoes.slice().sort((a, b) => a - b) : transacoes;
+
+  trans.forEach((transacao, i) => {
     const tipo = transacao > 0 ? 'deposito' : 'saque';
 
     const html = `
@@ -203,4 +205,12 @@ btnLoan.addEventListener('click', function (event) {
     atualizarUI(currentAccount);
     inputLoanAmount.value = '';
   }
+});
+// Ordenar transações
+let sorteado = false;
+
+btnSort.addEventListener('click', function (event) {
+  event.preventDefault();
+  mostrarTransacoes(currentAccount.movements, !sorteado);
+  sorteado = !sorteado;
 });
