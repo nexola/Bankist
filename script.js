@@ -82,33 +82,30 @@ const mostrarTransacoes = function (transacoes) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-mostrarTransacoes(account1.movements);
 
 const calcMostrarBalanco = function (transacoes) {
   const balanco = transacoes.reduce((acc, transacao) => acc + transacao, 0);
   labelBalance.textContent = `${balanco}€`;
 };
-calcMostrarBalanco(account1.movements);
 
-const calcMostrarSumario = function (transacoes) {
-  const entradas = transacoes
+const calcMostrarSumario = function (conta) {
+  const entradas = conta.movements
     .filter(transacao => transacao > 0)
     .reduce((acc, transacao) => acc + transacao, 0);
   labelSumIn.textContent = `${entradas}€`;
 
-  const saidas = transacoes
+  const saidas = conta.movements
     .filter(transacao => transacao < 0)
     .reduce((acc, transacao) => acc + transacao, 0);
   labelSumOut.textContent = `${Math.abs(saidas)}€`;
 
-  const juros = transacoes
+  const juros = conta.movements
     .filter(transacao => transacao > 0)
-    .map(transacao => transacao * 0.012) // Juros 1,20%
+    .map(transacao => (transacao * conta.interestRate) / 100)
     .filter(transacao => transacao >= 1)
     .reduce((acc, transacao) => acc + transacao, 0);
   labelSumInterest.textContent = `${juros}€`;
 };
-calcMostrarSumario(account1.movements);
 
 const criarUsername = function (contas) {
   contas.forEach(conta => {
@@ -120,3 +117,31 @@ const criarUsername = function (contas) {
   });
 };
 criarUsername(accounts);
+
+// Event handler
+let currentAccount;
+
+btnLogin.addEventListener('click', function (event) {
+  event.preventDefault();
+  console.log('login');
+
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  console.log(currentAccount);
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    labelWelcome.textContent = `Olá de novo, ${
+      currentAccount.owner.split(' ')[0]
+    }!`;
+    containerApp.style.opacity = 100;
+
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur(); // Faz o elemento perder o foco
+
+    mostrarTransacoes(currentAccount.movements);
+    calcMostrarBalanco(currentAccount.movements);
+    calcMostrarSumario(currentAccount);
+  } else {
+    console.log('Username ou senha incorretas');
+  }
+});
