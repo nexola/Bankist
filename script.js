@@ -64,6 +64,12 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 
+const atualizarUI = function (currentAccount) {
+  mostrarTransacoes(currentAccount.movements);
+  calcMostrarBalanco(currentAccount);
+  calcMostrarSumario(currentAccount);
+};
+
 const mostrarTransacoes = function (transacoes) {
   containerMovements.innerHTML = '';
 
@@ -83,9 +89,12 @@ const mostrarTransacoes = function (transacoes) {
   });
 };
 
-const calcMostrarBalanco = function (transacoes) {
-  const balanco = transacoes.reduce((acc, transacao) => acc + transacao, 0);
-  labelBalance.textContent = `${balanco}€`;
+const calcMostrarBalanco = function (conta) {
+  conta.balance = conta.movements.reduce(
+    (acc, transacao) => acc + transacao,
+    0
+  );
+  labelBalance.textContent = `${conta.balance}€`;
 };
 
 const calcMostrarSumario = function (conta) {
@@ -120,28 +129,44 @@ criarUsername(accounts);
 
 // Event handler
 let currentAccount;
-
+// Login
 btnLogin.addEventListener('click', function (event) {
   event.preventDefault();
-  console.log('login');
-
   currentAccount = accounts.find(
     acc => acc.username === inputLoginUsername.value
   );
-  console.log(currentAccount);
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
     labelWelcome.textContent = `Olá de novo, ${
       currentAccount.owner.split(' ')[0]
     }!`;
     containerApp.style.opacity = 100;
 
+    atualizarUI(currentAccount);
+
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur(); // Faz o elemento perder o foco
-
-    mostrarTransacoes(currentAccount.movements);
-    calcMostrarBalanco(currentAccount.movements);
-    calcMostrarSumario(currentAccount);
   } else {
     console.log('Username ou senha incorretas');
+  }
+});
+// Transferência
+btnTransfer.addEventListener('click', function (event) {
+  event.preventDefault();
+  const quantia = Number(inputTransferAmount.value);
+  const contaReceptora = accounts.find(
+    acc => inputTransferTo.value === acc?.username
+  );
+  inputTransferAmount.value = inputTransferTo.value = '';
+
+  if (
+    quantia > 0 &&
+    contaReceptora &&
+    currentAccount.balance >= quantia &&
+    contaReceptora?.username !== currentAccount.username
+  ) {
+    // Realizando a transferência
+    currentAccount.movements.push(-quantia);
+    contaReceptora.movements.push(quantia);
+    atualizarUI(currentAccount);
   }
 });
