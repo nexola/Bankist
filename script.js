@@ -90,6 +90,26 @@ const calcMostrarBalanco = function (transacoes) {
 };
 calcMostrarBalanco(account1.movements);
 
+const calcMostrarSumario = function (transacoes) {
+  const entradas = transacoes
+    .filter(transacao => transacao > 0)
+    .reduce((acc, transacao) => acc + transacao, 0);
+  labelSumIn.textContent = `${entradas}€`;
+
+  const saidas = transacoes
+    .filter(transacao => transacao < 0)
+    .reduce((acc, transacao) => acc + transacao, 0);
+  labelSumOut.textContent = `${Math.abs(saidas)}€`;
+
+  const juros = transacoes
+    .filter(transacao => transacao > 0)
+    .map(transacao => transacao * 0.012) // Juros 1,20%
+    .filter(transacao => transacao >= 1)
+    .reduce((acc, transacao) => acc + transacao, 0);
+  labelSumInterest.textContent = `${juros}€`;
+};
+calcMostrarSumario(account1.movements);
+
 const criarUsername = function (contas) {
   contas.forEach(conta => {
     conta.username = conta.owner
