@@ -170,3 +170,22 @@ btnTransfer.addEventListener('click', function (event) {
     atualizarUI(currentAccount);
   }
 });
+// Fechar conta
+btnClose.addEventListener('click', function (event) {
+  event.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    accounts.splice(
+      accounts.findIndex(acc => acc.username === currentAccount.username),
+      1
+    );
+  }
+  // Esconder UI
+  containerApp.style.opacity = 0;
+  labelWelcome.textContent = 'Entre para começar';
+
+  inputCloseUsername.value = inputClosePin.value = '';
+});
