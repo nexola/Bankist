@@ -127,7 +127,7 @@ const criarUsername = function (contas) {
 };
 criarUsername(accounts);
 
-// Event handler
+// Event handlers
 let currentAccount;
 // Login
 btnLogin.addEventListener('click', function (event) {
@@ -188,4 +188,19 @@ btnClose.addEventListener('click', function (event) {
   labelWelcome.textContent = 'Entre para começar';
 
   inputCloseUsername.value = inputClosePin.value = '';
+});
+// Solicitar empréstimo
+btnLoan.addEventListener('click', function (event) {
+  event.preventDefault();
+
+  const quantia = Number(inputLoanAmount.value);
+
+  if (
+    quantia > 0 &&
+    currentAccount.movements.some(transacao => transacao > quantia * 0.1)
+  ) {
+    currentAccount.movements.push(quantia);
+    atualizarUI(currentAccount);
+    inputLoanAmount.value = '';
+  }
 });
