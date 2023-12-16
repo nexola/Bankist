@@ -82,6 +82,34 @@ const atualizarUI = function (currentAccount) {
   calcMostrarSumario(currentAccount);
 };
 
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+    // Em cada chamado, printar o tempo restante
+    labelTimer.textContent = `${min}:${sec}`;
+
+    // Quando o tempo acabar, parar o timer e deslogar usuário
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = `Entre para começar`;
+      containerApp.style.opacity = 0;
+    }
+
+    // Decrease 1 segundo
+    time--;
+  };
+
+  // Setando o tempo para 5 minutos
+  let time = 300;
+
+  // Chamando o timer todo segundo
+  tick();
+  const timer = setInterval(tick, 1000);
+
+  return timer;
+};
+
 const formatMovementDate = function (date, locale) {
   const calcDiasPassados = (date1, date2) =>
     Math.round(Math.abs((date2 - date1) / (1000 * 60 * 60 * 24)));
@@ -187,27 +215,7 @@ const criarUsername = function (contas) {
 criarUsername(accounts);
 
 // Event handlers
-let currentAccount;
-
-// FAKE LOGIN
-currentAccount = account1;
-atualizarUI(currentAccount);
-containerApp.style.opacity = 100;
-
-// Experimentando a API INTL
-const now = new Date();
-const options = {
-  hour: 'numeric',
-  minute: 'numeric',
-  day: 'numeric',
-  month: 'numeric',
-  year: 'numeric',
-};
-
-labelDate.textContent = new Intl.DateTimeFormat(
-  currentAccount.locale,
-  options
-).format(now);
+let currentAccount, timer;
 
 // Login
 btnLogin.addEventListener('click', function (event) {
@@ -221,18 +229,27 @@ btnLogin.addEventListener('click', function (event) {
     }!`;
     containerApp.style.opacity = 100;
 
-    atualizarUI(currentAccount);
-
     const now = new Date();
-    const dia = `${now.getDate()}`.padStart(2, 0);
-    const mes = `${now.getMonth() + 1}`.padStart(2, 0);
-    const ano = now.getFullYear();
-    const hora = `${now.getHours()}`.padStart(2, 0);
-    const minutos = `${now.getMinutes()}`.padStart(2, 0);
-    labelDate.textContent = `${dia}/${mes}/${ano}, ${hora}:${minutos}`;
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    };
+    labelDate.textContent = new Intl.DateTimeFormat(
+      currentAccount.locale,
+      options
+    ).format(now);
 
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur(); // Faz o elemento perder o foco
+
+    // Timer
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
+
+    atualizarUI(currentAccount);
   } else {
     console.log('Username ou senha incorretas');
   }
@@ -260,6 +277,8 @@ btnTransfer.addEventListener('click', function (event) {
     contaReceptora.movementsDates.push(new Date().toISOString());
 
     atualizarUI(currentAccount);
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 // Fechar conta
@@ -291,10 +310,14 @@ btnLoan.addEventListener('click', function (event) {
     quantia > 0 &&
     currentAccount.movements.some(transacao => transacao > quantia * 0.1)
   ) {
-    currentAccount.movements.push(quantia);
-    currentAccount.movementsDates.push(new Date().toISOString());
+    setTimeout(function () {
+      currentAccount.movements.push(quantia);
+      currentAccount.movementsDates.push(new Date().toISOString());
 
-    atualizarUI(currentAccount);
+      atualizarUI(currentAccount);
+      clearInterval(timer);
+      timer = startLogOutTimer();
+    }, 2500);
   }
   inputLoanAmount.value = '';
 });
@@ -375,3 +398,31 @@ const opcoes = {
 
 const num = 366782.23;
 console.log(new Intl.NumberFormat('pt-BR', opcoes).format(num));
+
+// Timer
+
+const ingredients = ['olives', 'spinach'];
+const pizzaTimer = setTimeout(
+  (ing1, ing2) => console.log(`Here is your pizza 🍕 with ${ing1} and ${ing2}`),
+  3000,
+  ...ingredients
+);
+
+console.log('Aguardando...');
+
+if (ingredients.includes('spinach')) clearTimeout(pizzaTimer);
+
+// setInterval
+setInterval(function () {
+  const now = new Date();
+  const options = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    weekday: 'long',
+  };
+  console.log(new Intl.DateTimeFormat('pt-BR', options).format(now));
+}, 1000);
